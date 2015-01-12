@@ -49,7 +49,36 @@ console.log(nAcross, nHigh);
   }
 };
 
+
+function drawRhazsign() {
+
+  var cosinterp = cos(millis() * rate);
+  var sininterp = abs(sin(millis() * rate));
+  var imgx = map(cosinterp,-1.0,1.0,minSignX,maxSignX);
+  var imgy = map(sininterp,0,1.0,50,0);
+
+  fill(200,200,0,100);
+  beginShape();
+  vertex(imgx,imgy + 67.5);
+  vertex(imgx + 158, imgy + 67.5);
+  vertex(imgx + 79, imgy + 350);
+  endShape(CLOSE);
+
+  image(shadow,imgx,imgy);
+}
+
+var rate = .0002;
 var building;
+var shadow;
+var signRate = 400;
+var minSignX = 0;
+var maxSignX = 800;
+
+function preload() {
+ shadow = loadImage("assets/bat-rhazes-02.png");
+// shadow = loadImage("assets/bat-rhazes-alpha-02.png");
+}
+
 
 function setup() {
   createCanvas(900,300);
@@ -61,8 +90,7 @@ function setup() {
 function draw() {
   background(0,0,50);
   building.draw(); 
-}
 
-function drawBuilding(left, top, wt, ht, color) {
+  drawRhazsign();
 }
 
