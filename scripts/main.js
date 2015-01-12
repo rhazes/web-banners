@@ -12,7 +12,7 @@ console.log(typeof (this.windows));
 
   this.draw = function () {
    fill(color);
-   rect(left,top,wt,ht); 
+   rect(this.left,this.top,this.wt,this.ht); 
 //  console.log(this.windows.length()); 
    this.windows.forEach(function(el,ind,arr) {
 	fill(el.winCol);
@@ -74,6 +74,15 @@ var signRate = 400;
 var minSignX = 0;
 var maxSignX = 800;
 
+var layers = 6;
+var buildingCountRange = [50,20];
+var buildingHeightRange = [20,150];
+var buildingDensities = [.1,1.0];
+var meanWidths = [], meanHeights = [], meanDensity = [];
+var meanWidth = 50.0;
+var sdWidth = 10.0;
+
+
 function preload() {
  shadow = loadImage("assets/bat-rhazes-02.png");
 // shadow = loadImage("assets/bat-rhazes-alpha-02.png");
@@ -84,6 +93,15 @@ function setup() {
   createCanvas(900,300);
   building = new Building(50,90,50,200, [50,50,50] );
   noStroke();
+
+  //initialize building dimensions by layers
+  for(i=0; i<layers; i++) {
+    var t = i/(layers-1.0);
+    meanWidths.push(  lerp(buildingCountRange[0], buildingCountRange[1],t) );
+    meanHeights.push( lerp(buildingHeightRange[0],buildingHeightRange[1],t) );
+    meanDensity.push( lerp(buildingDensities[0],buildingDensities[1],t) );
+  }
+ 
 }
 
 
@@ -92,5 +110,13 @@ function draw() {
   building.draw(); 
 
   drawRhazsign();
+}
+
+function mouseClicked() {
+  bWidth = randomGaussian(meanWidth,sdWidth);
+  console.log("building width = " , bWidth);
+  building.wt = max(20.0, bWidth);
+  building.buildWindows();
+  return false;
 }
 
