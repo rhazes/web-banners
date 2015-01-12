@@ -27,7 +27,7 @@ Building.prototype.buildWindows = function() {
  nAcross = int(random(minWinCount, maxWinCount)); 
  nHigh = int(random(minWinCount, maxWinCount)); 
 
-console.log(nAcross, nHigh);
+//console.log(nAcross, nHigh);
  //total window width is half the width of the building
  wWt = this.wt / (2.0 * nAcross ) ;
  //total window height is half the height of the building
@@ -82,6 +82,7 @@ var meanWidths = [], meanHeights = [], meanDensity = [];
 var meanWidth = 50.0;
 var sdWidth = 10.0;
 
+var buildings = [];
 
 function preload() {
  shadow = loadImage("assets/bat-rhazes-02.png");
@@ -97,9 +98,22 @@ function setup() {
   //initialize building dimensions by layers
   for(i=0; i<layers; i++) {
     var t = i/(layers-1.0);
-    meanWidths.push(  lerp(buildingCountRange[0], buildingCountRange[1],t) );
+    meanWidths.push(  lerp(width/buildingCountRange[0], width/buildingCountRange[1],t) );
     meanHeights.push( lerp(buildingHeightRange[0],buildingHeightRange[1],t) );
     meanDensity.push( lerp(buildingDensities[0],buildingDensities[1],t) );
+  }
+  
+  var baseline = height;
+  for(i=0; i<layers; ++i) {
+    var pos = 0;
+    while(pos < width) {
+      var bw = randomGaussian(meanWidths[i], .10*meanWidths[i]);
+      var bh = randomGaussian(meanHeights[i], .10*meanHeights[i]);
+      var b = new Building(pos, baseline-bh,bw,bh, [100,100,100]);
+      buildings.push(b);
+      pos += b.wt; 
+
+    }
   }
  
 }
@@ -107,7 +121,10 @@ function setup() {
 
 function draw() {
   background(0,0,50);
-  building.draw(); 
+  for(b in buildings) {
+    b.draw();
+  }
+ // building.draw(); 
 
   drawRhazsign();
 }
