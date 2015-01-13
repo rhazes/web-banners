@@ -1,3 +1,4 @@
+"use strict";
 var minWinCount = 5;
 var maxWinCount = 8;
 
@@ -10,38 +11,34 @@ var Building =  {
 
 		  draw : function() {
 			   fill(this.color);
-			   rect(this.lt,this.tp,this.wd,this.ht); 
-				//  console.log(this.windows.length()); 
-				/*   this.windows.forEach(function(el,ind,arr) {
-					fill(el.winCol);
-					rect(el.winX, el.winY,el.w, el.h);
-					});*/
-				  },
-		buildWindows : function() {
-				 nAcross = int(random(minWinCount, maxWinCount)); 
-				 nHigh = int(random(minWinCount, maxWinCount)); 
+			   rect(this.lt,this.tp,this.wd,this.ht); }};
 
-				//console.log(nAcross, nHigh);
-				 //total window width is half the width of the building
-				 wWt = this.wd / (2.0 * nAcross ) ;
-				 //total window height is half the height of the building
-				 wHt = this.ht / (2.0 * nHigh );
+
+function buildWindows( bldg ) {
+	 bldg.windows = [];
+	 var nAcross = int(random(10, 20)); 
+	 var nHigh = int(random(10, 20)); 
+
+	 //total window width is half the width of the building
+	 var winWd =  bldg.wd / (2.0 * nAcross ) ;
+	 //total window height is half the height of the building
+	 var winHt = bldg.ht / (2.0 * nHigh );
+
+	 //a little spacing from the edge of the building
+	 var x = bldg.lt + (1.0 / (2.0 * nAcross) );
+	 var y = bldg.tp + winHt;
  
-				 //a little spacing from the edge of the building
-				 var x = this.lt + (1.0 / (2.0 * nAcross) );
-				 var y = this.top + wHt;
- 
-				 for(i=0; i < nAcross; i++) {
-				    for( j=0; j < nHigh; j++) {
-					this.windows.push( {
-							winX: x + (i * wWt * 2.0),
-							winY: y + (j * wHt * 2.0),
-							w: wWt,
-							h: wHt,
-						 	winCol: 255} );
-				    }
-				  }
-				}};
+	 for(var i=0; i < nAcross; i++) {
+	    for(var j=0; j < nHigh; j++) {
+		bldg.windows.push( {
+			x: x + (i * winWd * 2.0),
+			y: y + (j * winHt * 2.0),
+			w: winWd,
+			h: winHt,
+		 	col: 255} );
+	    }
+	  }
+};
 
 function buildBuilding(left, top, aWidth, aHeight, aColor) {
   var b = Object.create(Building);
@@ -50,8 +47,7 @@ function buildBuilding(left, top, aWidth, aHeight, aColor) {
   b.wd = aWidth;
   b.ht = aHeight;
   b.color = aColor;
-  b.windows = [];
-	  b.buildWindows();
+  buildWindows(b);
 //  b.draw();
   return b;
 }
@@ -132,7 +128,7 @@ function setup() {
   noStroke();
 
   //initialize building dimensions by layers
-  for(i=0; i<layers; i++) {
+  for(var i=0; i<layers; i++) {
     var t = i/(layers-1.0);
     meanWidths.push(  lerp(width/buildingCountRange[0], width/buildingCountRange[1],t) );
     meanHeights.push( lerp(buildingHeightRange[0],buildingHeightRange[1],t) );
@@ -140,7 +136,7 @@ function setup() {
   }
   var baseline = height-80;
 ///* 
-  for(i=0; i<1; i++) {
+  for(var i=0; i<1; i++) {
     var pos = 0;
     var ind = 0;
     while(pos < width) {
@@ -158,9 +154,16 @@ function setup() {
 }
 
 function draw() {
-  background(0,0,50);
-  for(i=0; i < buildings.length; ++i) {
+  background(255);
+  for(var i=0; i < buildings.length; ++i) {
     buildings[i].draw();
+    for(var j=0; j < buildings[i].windows.length; ++j) {
+        fill([255,0,0]);
+	rect(buildings[i].windows[j].x,
+	     buildings[i].windows[j].y,
+	     buildings[i].windows[j].w,
+	     buildings[i].windows[j].h);
+    }
   } 
 // building.draw(); 
 
