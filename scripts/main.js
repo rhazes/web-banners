@@ -1,17 +1,18 @@
 "use strict";
-var minWinCount = 5;
-var maxWinCount = 8;
+var minWinCount = 10;
+var maxWinCount = 20;
+var bLayer;
 
 var Building =  {
-		  lt : 0,
-		  tp : 0,
-		  wd : 20,
-		  ht : 70, 
+		  l : 0,
+		  t : 0,
+		  w : 20,
+		  h : 70, 
 		  color : [100,100,100],
 
 		  draw : function() {
 			   fill(this.color);
-			   rect(this.lt,this.tp,this.wd,this.ht); }};
+			   rect(this.l,this.t,this.w,this.h); }};
 
 
 function buildWindows( bldg ) {
@@ -20,13 +21,13 @@ function buildWindows( bldg ) {
 	 var nHigh = int(random(10, 20)); 
 
 	 //total window width is half the width of the building
-	 var winWd =  bldg.wd / (2.0 * nAcross ) ;
+	 var winWd =  bldg.w / (2.0 * nAcross ) ;
 	 //total window height is half the height of the building
-	 var winHt = bldg.ht / (2.0 * nHigh );
+	 var winHt = bldg.h / (2.0 * nHigh );
 
 	 //a little spacing from the edge of the building
-	 var x = bldg.lt + (1.0 / (2.0 * nAcross) );
-	 var y = bldg.tp + winHt;
+	 var x = bldg.l + (1.0 / (2.0 * nAcross) );
+	 var y = bldg.t + winHt;
  
 	 for(var i=0; i < nAcross; i++) {
 	    for(var j=0; j < nHigh; j++) {
@@ -42,10 +43,10 @@ function buildWindows( bldg ) {
 
 function buildBuilding(left, top, aWidth, aHeight, aColor) {
   var b = Object.create(Building);
-  b.lt = left;
-  b.tp = top;
-  b.wd = aWidth;
-  b.ht = aHeight;
+  b.l = left;
+  b.t = top;
+  b.w = aWidth;
+  b.h = aHeight;
   b.color = aColor;
   buildWindows(b);
 //  b.draw();
@@ -93,7 +94,7 @@ function drawRhazsign() {
   beginShape();
   vertex(imgx,imgy + 67.5);
   vertex(imgx + 158, imgy + 67.5);
-  vertex(imgx + 79, imgy + 200);
+  vertex(300, height - 30);
   endShape(CLOSE);
 
   image(shadow,imgx,imgy);
@@ -107,8 +108,8 @@ var minSignX = 0;
 var maxSignX = 800;
 
 var layers = 6;
-var buildingCountRange = [50,20];
-var buildingHeightRange = [50,150];
+var buildingCountRange = [40,10];
+var buildingHeightRange = [50,350];
 var buildingDensities = [.1,1.0];
 var meanWidths = [], meanHeights = [], meanDensity = [];
 var meanWidth = 50.0;
@@ -118,7 +119,7 @@ var buildings = [];
 
 function preload() {
 // shadow = loadImage("assets/bat-rhazes-02.png");
-// shadow = loadImage("assets/bat-rhazes-alpha-02.png");
+ shadow = loadImage("assets/bat-rhazes-alpha-02.png");
 }
 
 
@@ -134,7 +135,7 @@ function setup() {
     meanHeights.push( lerp(buildingHeightRange[0],buildingHeightRange[1],t) );
     meanDensity.push( lerp(buildingDensities[0],buildingDensities[1],t) );
   }
-  var baseline = height-80;
+  var baseline = height;
 ///* 
   for(var i=0; i<1; i++) {
     var pos = 0;
@@ -146,25 +147,33 @@ function setup() {
 //     var bh = randomGaussian(meanHeights[i], .20*meanHeights[i]);
       buildings[ind] = buildBuilding(pos, baseline-bh,bw,bh, [100,100,100]);
 
-      pos += buildings[ind].wd; 
+      pos += buildings[ind].w; 
       ind++;
     }
+
+    
   }
- //*/
+  bLayer = createGraphics(width,height);
+    bLayer.background(255);
+    bLayer.noStroke();
+    for(var i=0; i < buildings.length; ++i) {
+	if(random() > 0.1) {
+		var b = buildings[i];
+		bLayer.fill(b.color);
+	 	bLayer.rect(b.l,b.t,b.w,b.h);
+	        bLayer.fill(255);
+		for(var j=0; j < b.windows.length; ++j) {
+		   bLayer.rect(b.windows[j].x, b.windows[j].y, b.windows[j].w, b.windows[j].h);
+		}
+	}
+
+    }
 }
 
 function draw() {
   background(255);
-  for(var i=0; i < buildings.length; ++i) {
-    buildings[i].draw();
-    for(var j=0; j < buildings[i].windows.length; ++j) {
-        fill([255,0,0]);
-	rect(buildings[i].windows[j].x,
-	     buildings[i].windows[j].y,
-	     buildings[i].windows[j].w,
-	     buildings[i].windows[j].h);
-    }
-  } 
+  image(bLayer,0,0);
+  drawRhazsign(); 
 // building.draw(); 
 
  // drawRhazsign();
