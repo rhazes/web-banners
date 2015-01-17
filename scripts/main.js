@@ -14,6 +14,7 @@ var Building =  {
 			   fill(this.color);
 			   rect(this.l,this.t,this.w,this.h); }};
 
+var windowProb  = 0.6;
 
 function buildWindows( bldg ) {
 	 bldg.windows = [];
@@ -31,12 +32,14 @@ function buildWindows( bldg ) {
  
 	 for(var i=0; i < nAcross; i++) {
 	    for(var j=0; j < nHigh; j++) {
+   		if(random() < windowProb ) {
 		bldg.windows.push( {
 			x: x + (i * winWd * 2.0),
 			y: y + (j * winHt * 2.0),
 			w: winWd,
 			h: winHt,
 		 	col: 255} );
+		}
 	    }
 	  }
 };
@@ -82,19 +85,20 @@ Building.prototype.buildWindows = function() {
   }
 };
 */
-
+var imgx = 400;
+var imgy = 100; 
 function drawRhazsign() {
 
   var cosinterp = cos(millis() * rate);
   var sininterp = abs(sin(millis() * rate));
-  var imgx = map(cosinterp,-1.0,1.0,minSignX,maxSignX);
-  var imgy = map(sininterp,0,1.0,50,0);
-
+//  var imgx = map(cosinterp,-1.0,1.0,minSignX,maxSignX);
+//  var imgy = map(sininterp,0,1.0,50,0);
+//  imgx = 400; imgy = 200;
   fill(200,200,0,100);
   beginShape();
   vertex(imgx,imgy + 67.5);
   vertex(imgx + 158, imgy + 67.5);
-  vertex(300, height - 30);
+  vertex(-30, height - 30);
   endShape(CLOSE);
 
   image(shadow,imgx,imgy);
@@ -108,9 +112,9 @@ var minSignX = 0;
 var maxSignX = 800;
 
 var layers = 6;
-var buildingCountRange = [40,10];
-var buildingHeightRange = [50,350];
-var buildingDensities = [.1,1.0];
+var buildingCountRange = [40,20];
+var buildingHeightRange = [30,100];
+var buildingDensities = [.1,.9];
 var meanWidths = [], meanHeights = [], meanDensity = [];
 var meanWidth = 50.0;
 var sdWidth = 10.0;
@@ -136,19 +140,17 @@ function setup() {
     meanDensity.push( lerp(buildingDensities[0],buildingDensities[1],t) );
   }
   var baseline = height;
-///* 
-  for(var i=0; i<1; i++) {
+  for(var i=0; i<7; i++) {
     var pos = 0;
-    var ind = 0;
     while(pos < width) {
-//      var bw = randomGaussian(meanWidths[i], .20*meanWidths[i]);
-      var bw =  random(.7*meanWidths[i],1.3*meanWidths[i]);
+      var bw =  random(.9*meanWidths[i],1.1*meanWidths[i]);
       var bh =  random(.7*meanHeights[i],1.3*meanHeights[i]);
-//     var bh = randomGaussian(meanHeights[i], .20*meanHeights[i]);
-      buildings[ind] = buildBuilding(pos, baseline-bh,bw,bh, [100,100,100]);
-
-      pos += buildings[ind].w; 
-      ind++;
+	var bldg = buildBuilding(pos, baseline-bh,bw,bh, random(0,90)); 
+	pos += bldg.w; 
+ 	var shouldAdd = random();
+	if(shouldAdd > meanDensity[i]) {
+	      buildings.push(bldg);
+	}
     }
 
     
@@ -156,8 +158,7 @@ function setup() {
   bLayer = createGraphics(width,height);
     bLayer.background(255);
     bLayer.noStroke();
-    for(var i=0; i < buildings.length; ++i) {
-	if(random() > 0.1) {
+    for(var i=buildings.length-1; i >= 0; i--) {
 		var b = buildings[i];
 		bLayer.fill(b.color);
 	 	bLayer.rect(b.l,b.t,b.w,b.h);
@@ -165,10 +166,8 @@ function setup() {
 		for(var j=0; j < b.windows.length; ++j) {
 		   bLayer.rect(b.windows[j].x, b.windows[j].y, b.windows[j].w, b.windows[j].h);
 		}
-	}
-
     }
-}
+ }
 
 function draw() {
   background(255);
